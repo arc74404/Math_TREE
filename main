@@ -1,9 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include<vector>
-sf::RenderWindow window(sf::VideoMode(1000, 900), "SFML works!");
-
-int st = 0;
+#include<cmath>
 
 using std::pair;
 using std::vector;
@@ -13,7 +11,7 @@ using std::cout;
 class LineObject;
 
 enum class whereGo {
-    right = 1, left = -1
+    right = -1, left = 1
 };
 
 class LineObject {
@@ -78,21 +76,23 @@ public:
         this->line = line;
 
         setPosition_line();
-        
+
     }
 };
-void push_tree(vector<LineObject>& tree) {
-    int size = tree.size();
-    for (int i = st; i < size; ++i) {
-        LineObject a(tree[i], int(whereGo::right));
+void make_tree(vector<LineObject>& tree) {
 
-        tree.emplace_back(a);
+    unsigned long long size = tree.size() / 2;
 
-        LineObject b(tree[i], int(whereGo::left));
+    for (unsigned long long i = 0; i < size; ++i) {
 
-        tree.emplace_back(b);
+        LineObject a(tree[i], int(whereGo::left));
 
-        st++;
+        tree[i * 2 + 1] = a;
+
+        LineObject b(tree[i], int(whereGo::right));
+
+        tree[i * 2 + 2] = b;
+
     }
 }
 
@@ -100,12 +100,22 @@ int main()
 {
     LineObject a(200, 0);
 
-    vector<LineObject> tree = { a };
+    int iterator = 0;
+
+    const int SIZE = 22;
+
+    vector<LineObject> tree(unsigned long long(std::pow(2, SIZE) - 1), a);
+
+    make_tree(tree);
+    
+    sf::RenderWindow window(sf::VideoMode(1000, 900), "SFML works!");
+
+    bool was = false;
 
     while (window.isOpen())
     {
         sf::Event event;
-        window.clear();
+       // window.clear();
 
         while (window.pollEvent(event))
         {
@@ -114,16 +124,17 @@ int main()
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                 cout << "x = " << sf::Mouse::getPosition(window).x << "     y = " << sf::Mouse::getPosition(window).y << std::endl;
             }
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-                push_tree(tree);
+        }
+        if (!was) {
+
+            for (int i = 0; i < tree.size(); ++i) {
+                window.draw(tree[i].line);
             }
-        }
 
-        for (int i = 0; i < tree.size(); ++i) {
-            window.draw(tree[i].line);
-        }
+            was = true;
 
-        window.display();
+            window.display();
+        }
     }
 
     return 0;
