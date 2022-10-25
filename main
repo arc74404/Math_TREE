@@ -1,7 +1,12 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include<vector>
-#include<cmath>
+
+int st = 0;
+
+int CORN = 0;
+
+float multiplierLenth = 0;
 
 using std::pair;
 using std::vector;
@@ -11,7 +16,7 @@ using std::cout;
 class LineObject;
 
 enum class whereGo {
-    right = -1, left = 1
+    right = 1, left = -1
 };
 
 class LineObject {
@@ -26,9 +31,38 @@ class LineObject {
 
         line[1].position = cord_of_Finish;
 
-        line[1].color = sf::Color::Red;
+        sf::Color color;
+
+        color.r = rand() % 340 + 20;
+        color.g = rand() % 340 + 20;
+        color.b = rand() % 340 + 20;
+
+        line[1].color = color;
+        line[0].color = color;
+
+        LastColor = color;
+    }
+    void setPosition_line(sf::Color now) {
+
+        line[0].position = cord_of_Start;
+
+        line[1].position = cord_of_Finish;
+
+        sf::Color color;
+
+        color.r = rand() % 340 + 20;
+        color.g = rand() % 340 + 20;
+        color.b = rand() % 340 + 20;
+
+        line[0].color = now;
+
+        line[1].color = color;
+
+        LastColor = color;
     }
 public:
+    sf::Color LastColor;
+
     sf::VertexArray line;
 
     sf::Vector2f cord_of_Start;
@@ -39,9 +73,9 @@ public:
 
         const float PI = 3.14159265358979323846;
 
-        this->lenth = father.lenth * 0.75;
+        this->lenth = father.lenth * multiplierLenth;
 
-        this->corn = father.corn + 37 * direction;
+        this->corn = father.corn + CORN * direction;
 
         this->cord_of_Start = father.cord_of_Finish;
 
@@ -57,7 +91,7 @@ public:
 
         this->line = father.line;
 
-        setPosition_line();
+        setPosition_line(father.LastColor);
     }
 
 
@@ -80,8 +114,7 @@ public:
     }
 };
 void make_tree(vector<LineObject>& tree) {
-
-    unsigned long long size = tree.size() / 2;
+    int size = tree.size() / 2;
 
     for (unsigned long long i = 0; i < size; ++i) {
 
@@ -102,39 +135,46 @@ int main()
 
     int iterator = 0;
 
-    const int SIZE = 22;
+    const int SIZE = 10;
 
-    vector<LineObject> tree(unsigned long long(std::pow(2, SIZE) - 1), a);
+    vector<LineObject> tree(int(std::pow(2, SIZE) - 1), a);
+
+    cout << "Enter the angle: ";
+    std::cin >> CORN;
+
+    cout << "Enter the multiplier of Lenth: ";
+    std::cin >> multiplierLenth;
 
     make_tree(tree);
-    
+
     sf::RenderWindow window(sf::VideoMode(1000, 900), "SFML works!");
 
     bool was = false;
 
+
     while (window.isOpen())
     {
         sf::Event event;
-       // window.clear();
+        window.clear();
 
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                cout << "x = " << sf::Mouse::getPosition(window).x << "     y = " << sf::Mouse::getPosition(window).y << std::endl;
+                //cout << "x = " << sf::Mouse::getPosition(window).x << "     y = " << sf::Mouse::getPosition(window).y << std::endl;
             }
         }
+
         if (!was) {
 
             for (int i = 0; i < tree.size(); ++i) {
                 window.draw(tree[i].line);
             }
 
-            was = true;
-
-            window.display();
         }
+
+        window.display();
     }
 
     return 0;
